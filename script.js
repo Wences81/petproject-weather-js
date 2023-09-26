@@ -3,21 +3,22 @@ const link =
 
 const root = document.getElementById("root");  
 
+const popup = document.getElementById('popup');
+
 let store = {
     city: 'Madrid',
-    feelslike: 0,
     temperature: 0,
     observationTime: '00:00 AM',
     isDay: 'yes',
     description: "",
     properties: {
-        cloudcover: 0,
-        humidity: 0,
-        windSpeed: 0,
-        pressure: 0,
-        uvIndex: 0,
-        visibility: 0,
-    }
+        cloudcover: {},
+        humidity: {},
+        windSpeed: {},
+        pressure: {},
+        uvIndex: {},
+        visibility: {},
+    },
 };
 
 const fetchData = async () => {
@@ -26,7 +27,6 @@ const fetchData = async () => {
 
     const {
         current: {
-            feelslike,
             cloudcover,
             temperature,
             humidity,
@@ -38,29 +38,55 @@ const fetchData = async () => {
             weather_descriptions: description,
             wind_speed: windSpeed
         },
+        location: {name}
     } = data;
 
-    console.log(data)
+    
 
     store = {
         ...store,
         isDay,
-        feelslike,
+        city: name,
         temperature,
         observationTime,
         description: description[0],
         properties: {
-            cloudcover: `${cloudcover}%`,
-            humidity: `${humidity}%`,
-            windSpeed: `${windSpeed}km/h`,
-            pressure: `${pressure}%`,
-            uvIndex: `${uvIndex}/100`,
-            visibility: `${visibility}%`,
+            cloudcover: {
+                title: 'cloudcover',
+                value: `${cloudcover}%`,
+                icon: 'cloud.png',
+            },
+            humidity: {
+                title: 'humidity',
+                value: `${humidity}%`,
+                icon: 'humidity.png',
+            },
+            windSpeed: {
+                title: 'wind speed',
+                value: `${windSpeed}km/h`,
+                icon: 'wind.png',
+            },
+            pressure: {
+                title: 'pressure',
+                value: `${pressure}%`,
+                icon: 'gauge.png',
+            },
+            uvIndex: {
+                title: 'uv Index',
+                value: `${uvIndex}/100`,
+                icon: 'uv-index.png',
+            },
+            visibility: {
+                title: 'visibility',
+                value: `${visibility}%`,
+                icon: 'visibility.png',
+            },
         },    
         
     };
 
     renderComponent();
+   
 };
 
 const getImage = (description) => {
@@ -83,8 +109,10 @@ const getImage = (description) => {
 };
 
 const renderProperty = (properties) => {
-    console.log(properties)
-    return ` 
+    return Object.values(properties).map((data) => {
+        const { title, value, icon } = data;
+
+        return ` 
   <div class='property'>
     <div class='property-icon'>
        <img src='./img/icons/${icon}' alt=''>
@@ -93,7 +121,8 @@ const renderProperty = (properties) => {
        <div class='property-info__value'>${value}</div>
        <div class='property-info__description'>${title}</div>
     </div>  
-   </div>  `
+   </div>  `;
+    }).join('');
 };
     
 
@@ -126,8 +155,17 @@ const markup = () => {
             </div> `;
 };
 
+const toggleClass = () => {
+    popup.classList.toggle('active');
+};
+
 const renderComponent = () => {
     root.innerHTML = markup();
-}
+
+    const city = document.getElementById('city');
+    city.addEventListener('click', toggleClass);
+};
+
+
 
 fetchData();
