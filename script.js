@@ -1,12 +1,14 @@
 const link =
     "http://api.weatherstack.com/current?access_key=6eccb70a56010d0ed3c11bb19b17a78f";
 
-const root = document.getElementById("root");  
-
+const root = document.getElementById('root');  
 const popup = document.getElementById('popup');
+const textInput = document.getElementById('text-input');
+const form = document.getElementById('form')
 
 let store = {
     city: 'Madrid',
+    feelslike: 0,
     temperature: 0,
     observationTime: '00:00 AM',
     isDay: 'yes',
@@ -27,6 +29,7 @@ const fetchData = async () => {
 
     const {
         current: {
+            feelslike,
             cloudcover,
             temperature,
             humidity,
@@ -38,15 +41,14 @@ const fetchData = async () => {
             weather_descriptions: description,
             wind_speed: windSpeed
         },
-        location: {name}
     } = data;
 
-    
+    console.log(data); 
 
     store = {
         ...store,
         isDay,
-        city: name,
+        feelslike,
         temperature,
         observationTime,
         description: description[0],
@@ -109,9 +111,8 @@ const getImage = (description) => {
 };
 
 const renderProperty = (properties) => {
-    return Object.values(properties).map((data) => {
-        const { title, value, icon } = data;
-
+    return Object.values(properties).map(({ title, value, icon }) => {
+       
         return ` 
   <div class='property'>
     <div class='property-icon'>
@@ -155,17 +156,31 @@ const markup = () => {
             </div> `;
 };
 
-const toggleClass = () => {
-    popup.classList.toggle('active');
+const togglePopupClass = () => {
+    popup.classList.toggle("active");
 };
 
 const renderComponent = () => {
     root.innerHTML = markup();
 
     const city = document.getElementById('city');
-    city.addEventListener('click', toggleClass);
+    city.addEventListener('click', togglePopupClass);
 };
 
+const hendleInput = (e) => {
+    store = {
+        ...store,
+        city: e.target.value,
+    };
+};
 
+const handleSubmit = (e) => {
+    e.preventDefault();
+    fetchData();
+    togglePopupClass();
+}
+
+form.addEventListener('submit', handleSubmit);
+textInput.addEventListener('input', hendleInput);
 
 fetchData();
