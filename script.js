@@ -24,71 +24,76 @@ let store = {
 };
 
 const fetchData = async () => {
-    const result = await fetch(`${link}&query=${store.city}`);
-    const data = await result.json();
+    try {
+        const result = await fetch(`${link}&query=${store.city}`);
+        const data = await result.json();
 
-    const {
-        current: {
+        const {
+            current: {
+                feelslike,
+                cloudcover,
+                temperature,
+                humidity,
+                observation_time: observationTime,
+                pressure,
+                uv_index: uvIndex,
+                visibility,
+                is_day: isDay,
+                weather_descriptions: description,
+                wind_speed: windSpeed
+            },
+        } = data;
+
+        console.log(data);
+
+        store = {
+            ...store,
+            isDay,
             feelslike,
-            cloudcover,
             temperature,
-            humidity,
-            observation_time: observationTime,
-            pressure,
-            uv_index: uvIndex,
-            visibility,
-            is_day: isDay,
-            weather_descriptions: description,
-            wind_speed: windSpeed
-        },
-    } = data;
-
-    console.log(data); 
-
-    store = {
-        ...store,
-        isDay,
-        feelslike,
-        temperature,
-        observationTime,
-        description: description[0],
-        properties: {
-            cloudcover: {
-                title: 'cloudcover',
-                value: `${cloudcover}%`,
-                icon: 'cloud.png',
+            observationTime,
+            description: description[0],
+            properties: {
+                cloudcover: {
+                    title: 'cloudcover',
+                    value: `${cloudcover}%`,
+                    icon: 'cloud.png',
+                },
+                humidity: {
+                    title: 'humidity',
+                    value: `${humidity}%`,
+                    icon: 'humidity.png',
+                },
+                windSpeed: {
+                    title: 'wind speed',
+                    value: `${windSpeed}km/h`,
+                    icon: 'wind.png',
+                },
+                pressure: {
+                    title: 'pressure',
+                    value: `${pressure}%`,
+                    icon: 'gauge.png',
+                },
+                uvIndex: {
+                    title: 'uv Index',
+                    value: `${uvIndex}/100`,
+                    icon: 'uv-index.png',
+                },
+                visibility: {
+                    title: 'visibility',
+                    value: `${visibility}%`,
+                    icon: 'visibility.png',
+                },
             },
-            humidity: {
-                title: 'humidity',
-                value: `${humidity}%`,
-                icon: 'humidity.png',
-            },
-            windSpeed: {
-                title: 'wind speed',
-                value: `${windSpeed}km/h`,
-                icon: 'wind.png',
-            },
-            pressure: {
-                title: 'pressure',
-                value: `${pressure}%`,
-                icon: 'gauge.png',
-            },
-            uvIndex: {
-                title: 'uv Index',
-                value: `${uvIndex}/100`,
-                icon: 'uv-index.png',
-            },
-            visibility: {
-                title: 'visibility',
-                value: `${visibility}%`,
-                icon: 'visibility.png',
-            },
-        },    
         
+        };
+
+        renderComponent();
+   
+    } catch (err) {
+        console.log(err);
     };
 
-    renderComponent();
-   
 };
 
 const getImage = (description) => {
@@ -96,7 +101,7 @@ const getImage = (description) => {
 
     switch (value) {
         case 'partly cloudy':
-            return 'patly.png';
+            return 'partly.png';
         case 'cloud':
             return 'cloud.png';
         case 'fog':
@@ -176,6 +181,9 @@ const hendleInput = (e) => {
 
 const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!store.city) return null;
+
     fetchData();
     togglePopupClass();
 }
